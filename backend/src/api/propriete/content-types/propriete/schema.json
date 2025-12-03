@@ -1,0 +1,69 @@
+{
+  "kind": "collectionType",
+  "collectionName": "proprietes",
+  "info": {
+    "singularName": "propriete",
+    "pluralName": "proprietes",
+    "displayName": "Propriété"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Nom": {
+      "type": "string",
+      "required": true
+    },
+    "Description": {
+      "type": "text"
+    },
+    "Adresse": {
+      "type": "string",
+      "required": true
+    },
+    "Ville": {
+      "type": "string",
+      "required": true
+    },
+    "CodePostal": {
+      "type": "string"
+    },
+    "Prix": {
+      "type": "decimal",
+      "required": true
+    },
+    "Surface": {
+      "type": "decimal"
+    },
+    "Type": {
+      "type": "enumeration",
+      "enum": [
+        "Appartement",
+        "Villa",
+        "Maison",
+        "Bureau",
+        "Terrain",
+        "Studio"
+      ]
+    },
+    "Statut": {
+      "type": "enumeration",
+      "enum": [
+        "Disponible",
+        "Loué",
+        "Vendu"
+      ]
+    },
+    "Images": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  }
+}
