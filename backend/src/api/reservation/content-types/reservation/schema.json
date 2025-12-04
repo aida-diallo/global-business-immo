@@ -10,5 +10,30 @@
     "draftAndPublish": true
   },
   "pluginOptions": {},
-  "attributes": {}
+  "attributes": {
+    "dateDebut": {
+      "type": "date",
+      "required": true
+    },
+    "dateFin": {
+      "type": "date",
+      "required": true
+    },
+    "Statut": {
+      "type": "enumeration",
+      "enum": [
+        "en_attente",
+        "confirmee",
+        " annulee",
+        " terminee"
+      ]
+    },
+    "montantTotal": {
+      "type": "decimal",
+      "required": true
+    },
+    "commentaire": {
+      "type": "text"
+    }
+  }
 }

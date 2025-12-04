@@ -528,6 +528,8 @@ export interface ApiProprietePropriete extends Struct.CollectionTypeSchema {
       'api::propriete.propriete'
     > &
       Schema.Attribute.Private;
+    nbChambres: Schema.Attribute.Integer;
+    nbSallesDeBain: Schema.Attribute.Integer;
     Nom: Schema.Attribute.String & Schema.Attribute.Required;
     Prix: Schema.Attribute.Decimal & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
@@ -554,16 +556,23 @@ export interface ApiReservationReservation extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    commentaire: Schema.Attribute.Text;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    dateDebut: Schema.Attribute.Date & Schema.Attribute.Required;
+    dateFin: Schema.Attribute.Date & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::reservation.reservation'
     > &
       Schema.Attribute.Private;
+    montantTotal: Schema.Attribute.Decimal & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
+    Statut: Schema.Attribute.Enumeration<
+      ['en_attente', 'confirmee', ' annulee', ' terminee']
+    >;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
