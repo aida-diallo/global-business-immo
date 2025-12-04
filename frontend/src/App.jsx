@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 // Importez vos pages
 import HomePage from './pages/HomePage';
 import ServicesPage from './pages/ServicesPage';
+import ProprietesPage from './pages/ProprietesPage';
 // Vous créerez ces pages plus tard
 // import CataloguePage from './pages/CataloguePage';
 // import AProposPage from './pages/AProposPage';
@@ -21,7 +22,7 @@ function App() {
         <Route path="/services" element={<ServicesPage />} />
         
         {/* Décommentez ces routes quand vous aurez créé les pages */}
-        {/* <Route path="/catalogue" element={<CataloguePage />} /> */}
+        <Route path="/proprietes" element={<ProprietesPage />} />
         {/* <Route path="/apropos" element={<AProposPage />} /> */}
         {/* <Route path="/contact" element={<ContactPage />} /> */}
         
