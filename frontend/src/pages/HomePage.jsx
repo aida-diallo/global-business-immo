@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { 
     Menu, X, MessageCircle, Mouse, Home, 
     Building2, Briefcase, Key, ClipboardList, Users, Calendar, DollarSign, MapPin, 
-    Phone, Instagram, Linkedin, Mail, Handshake
+    Phone, Instagram, Linkedin, Mail, Handshake, Bath, Square, Heart
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-
+import axios from 'axios'; 
+const API_URL = 'http://localhost:5000/api/proprietes/public';
 
 // --- MOCK DATA pour les statistiques ---
 const STATS_MOCK = [
@@ -18,19 +19,19 @@ const STATS_MOCK = [
 // --- MOCK DATA pour les services ---
 const SERVICES_MOCK = [
     // Ligne 1 du design
-    { id: 1, titre: "Transactions immobilières", description: "Achat, vente et location de biens immobiliers avec un accompagnement personnalisé et professionnel.", icon: 'ClipboardList' }, // Icône de Transaction (Similaire au design)
-    { id: 2, titre: "Localisation de biens", description: "Trouvez le bien idéal grâce à notre expertise du marché immobilier sénégalais.", icon: 'MapPin' },
-    { id: 3, titre: "Gestion de propriétés", description: "Gestion complète de vos biens immobiliers pour maximiser votre investissement.", icon: 'Home' },
+    { id: 1, titre: "Transactions immobilières", description: "Achat, vente et location de biens immobiliers avec un accompagnement personnalisé et professionnel.", icon: 'ClipboardList', path: "/services/transactionImmoPage" }, // Icône de Transaction (Similaire au design)
+    { id: 2, titre: "Localisation de biens", description: "Trouvez le bien idéal grâce à notre expertise du marché immobilier sénégalais.", icon: 'MapPin', path: "/services/localisationPage" },
+    { id: 3, titre: "Gestion de propriétés", description: "Gestion complète de vos biens immobiliers pour maximiser votre investissement.", icon: 'Home', path: "/services/gestionBienPage" },
     
     // Ligne 2 du design
-    { id: 4, titre: "Vente de Terrain", description: "Large sélection de terrains constructibles dans les meilleurs zones.", icon: 'ClipboardList' },
-    { id: 5, titre: "Construction", description: "Service de construction clé en main avec des partenaires de confiance certifiés.", icon: 'Users' },
-    { id: 6, titre: "Plans architecturaux", description: "Conception et élaboration de plan architecturaux sur mesure par nos experts", icon: 'Briefcase' },
+    { id: 4, titre: "Vente de Terrain", description: "Large sélection de terrains constructibles dans les meilleurs zones.", icon: 'ClipboardList', path: "/services/venteTerrainPage" },
+    { id: 5, titre: "Construction", description: "Service de construction clé en main avec des partenaires de confiance certifiés.", icon: 'Users', path: "/services/constructionPage" },
+    { id: 6, titre: "Plans architecturaux", description: "Conception et élaboration de plan architecturaux sur mesure par nos experts", icon: 'Briefcase', path: "/services/plansArchitecturauxPage" },
     
     // Services supplémentaires (si vous les voulez)
-    { id: 7, titre: "Enregistrement", description: "Assistance complète pour toute vos demarches administratives et legales", icon: 'Key' },
-    { id: 8, titre: "Conseil immobiliers", description: "Expertises et conseils stratégique pour vos projets immobiliers d'envergure", icon: 'Briefcase' },
-    { id: 9, titre: "Topographie", description: "Services topographiques professionnels pour vos projets de construction.", icon: 'MapPin' },
+    { id: 7, titre: "Enregistrement", description: "Assistance complète pour toute vos demarches administratives et legales", icon: 'Key', path: "/services/enregistrementPage" },
+    { id: 8, titre: "Conseil immobiliers", description: "Expertises et conseils stratégique pour vos projets immobiliers d'envergure", icon: 'Briefcase', path: "/services/conseilImmoPage" },
+    { id: 9, titre: "Topographie", description: "Services topographiques professionnels pour vos projets de construction.", icon: 'MapPin', path: "/services/topographiePage" },
 ];
 
 // ...
@@ -56,10 +57,36 @@ const DynamicIcon = ({ name, className }) => {
 };
 // ...
 
+// Importez ou définissez vos fonctions utilitaires
+const formatPrice = (price) => {
+    // ... votre fonction formatPrice existante
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    if (numPrice && numPrice > 0) {
+        return new Intl.NumberFormat('fr-FR', {
+            style: 'decimal',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(numPrice) + ' FCFA';
+    }
+    return 'Prix sur demande';
+};
+
+const getImageUrl = (imageUrl) => {
+    // ... votre fonction getImageUrl existante
+    if (!imageUrl) return '/placeholder_image.jpg';
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+        return imageUrl;
+    }
+    return `http://localhost:5000${imageUrl}`;
+};
+
 export default function HomePage() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const location = useLocation();
+    const [properties, setProperties] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const ACCENT_COLOR = "#DF7649";
 
     useEffect(() => {
         const handleScroll = () => {
@@ -69,6 +96,30 @@ export default function HomePage() {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+   // 1. Récupération des données dans le useEffect
+    useEffect(() => {
+        const fetchProperties = async () => {
+            setLoading(true);
+            try {
+                // Utilise l'URL définie pour l'API publique des propriétés
+                const response = await axios.get(API_URL);
+                
+                const allProperties = Array.isArray(response.data) ? response.data : [];
+                
+                // Limitez-vous aux 3 premières propriétés pour la section "Biens d'Exception"
+                const exceptionProperties = allProperties.slice(0, 3); 
+                
+                setProperties(exceptionProperties);
+            } catch (err) {
+                console.error("Erreur lors de la récupération des biens d'exception:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProperties();
+    }, []);
 
     return ( 
     <div className="min-h-screen bg-white">
@@ -234,7 +285,7 @@ export default function HomePage() {
 </main>
 
  {/* Section : Nos Services Premium */}
-<section className="py-16 sm:py-24 bg-white">
+<section className="py-16 sm:py-24" style={{ backgroundColor: '#F9F4F1' }}>
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Titre de la Section */}
@@ -252,8 +303,9 @@ export default function HomePage() {
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
     {/* Assurez-vous que SERVICES_MOCK est défini en haut du fichier */}
     {SERVICES_MOCK.map((service) => (
-        <div 
+        <Link 
             key={service.id} 
+            to={service.path || `/services/${service.id}`}
             // Carte blanche, coins arrondis, et effet de survol
             className="bg-white p-6 sm:p-8 rounded-2xl
                         shadow-sm transition-all duration-300 group relative
@@ -287,7 +339,7 @@ export default function HomePage() {
             </p>
             
             {/* Lien "Lire la suite" */}
-            <Link 
+            <span 
                 to={`/services/${service.id}`}
                 // LIEN NOIR PAR DÉFAUT, ORANGE PAR SURVOL DE LA CARTE (group-hover)
                 className="text-gray-900 font-semibold text-sm flex items-center gap-1 
@@ -295,8 +347,8 @@ export default function HomePage() {
             >
                 Lire la suite 
                 <span className="transform group-hover:translate-x-0.5 transition-transform">→</span>
-            </Link>
-        </div>
+            </span>
+        </Link>
     ))}
 </div>
 // ...
@@ -306,224 +358,104 @@ export default function HomePage() {
 
  {/* Biens d'Exception Section */}
 <section className="py-20 bg-gray-50">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="text-center mb-16">
-      <h2 className="text-5xl font-bold text-gray-900 mb-4">Biens d'Exception</h2>
-      <div className="w-32 h-1 bg-orange-500 mx-auto mb-6"></div>
-      <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-        Découvrez notre sélection exclusive de propriétés haut de gamme au Sénégal
-      </p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold text-gray-900 mb-4">Biens d'Exception</h2>
+            <div className="w-32 h-1 bg-orange-500 mx-auto mb-6"></div>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Découvrez notre sélection exclusive de propriétés haut de gamme au Sénégal
+            </p>
+        </div>
+
+        {/* Affichage du chargement/erreur (Optionnel) */}
+        {/* Assurez-vous que les états `loading` et `properties` sont définis dans votre composant */}
+        {loading && <p className="text-center text-gray-600">Chargement des biens...</p>}
+        {!loading && properties.length === 0 && (
+            <p className="text-center text-gray-600">Aucun bien d'exception trouvé pour le moment.</p>
+        )}
+
+        {/* Properties Grid */}
+        {!loading && properties.length > 0 && (
+            <div className="grid md:grid-cols-3 gap-8">
+                {/* 3. Mappage des données réelles sur le composant de carte */}
+                {properties.map((property) => (
+                    <Link 
+                        key={property.id}
+                        to={`/proprietes/${property.id}`}
+                        className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
+                    >
+                        <div className="relative overflow-hidden h-80">
+                            <img
+                                src={getImageUrl(property.images_url)} // URL réelle
+                                alt={property.titre || 'Propriété'}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                onError={(e) => { e.target.src = '/placeholder_image.jpg'; }}
+                            />
+                            {/* Badges : Utiliser les données réelles */}
+                            <div className="absolute top-4 left-4 flex gap-2">
+                                <span className={`bg-transparent border border-white text-white group-hover:bg-[#DF7649] group-hover:border-[#DF7649] group-hover:text-white px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-300`}>
+                                    {property.statut || 'À vendre'}
+                                </span>
+                                <span className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-semibold">
+                                    {property.type || 'N/A'}
+                                </span>
+                            </div>
+                            {/* Favorite Icon (simulé) */}
+                            <button onClick={(e) => {e.preventDefault(); e.stopPropagation();}} className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:bg-transparent transition-all duration-300">
+                                <Heart className="w-5 h-5 text-gray-600 group-hover:text-white transition-colors duration-300" />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            {/* Titre réel */}
+                            <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#DF7649] mb-2 transition-colors duration-300 line-clamp-1">
+                                {property.titre || 'Titre non disponible'}
+                            </h3>
+                            {/* Localisation réelle */}
+                            <div className="flex items-center gap-2 text-gray-600 mb-4">
+                                <MapPin className="w-4 h-4" />
+                                <span className="text-sm line-clamp-1">
+                                    {property.ville || 'Localisation non spécifiée'}
+                                </span>
+                            </div>
+                            {/* Détails réels (Chambres, Salles de bain, Surface) */}
+                            <div className="flex items-center gap-4 text-gray-600 mb-4 text-sm">
+                                <div className="flex items-center gap-1">
+                                    <Home className="w-4 h-4" />
+                                    {/* CORRECTION: Utilisation de property.nbChambres */}
+                                    <span>{property.nbChambres || '0'}</span> 
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <Bath className="w-4 h-4" />
+                                    {/* CORRECTION: Utilisation de property.nbSallesDeBain */}
+                                    <span>{property.nbSallesDeBain || '0'}</span> 
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <Square className="w-4 h-4" />
+                                    <span>{property.surface ? `${property.surface}m²` : 'N/A'}</span>
+                                </div>
+                            </div>
+                            {/* Prix réel */}
+                            <div className="text-3xl font-bold text-[#DF7649] group-hover:text-gray-900 transition-colors duration-300">
+                                {formatPrice(property.prix)}
+                            </div>
+                        </div>
+                    </Link>
+                ))}
+            </div>
+        )}
+
+
+        {/* View All Button */}
+        <div className="text-center mt-12">
+            <Link 
+                to="/proprietes"
+                className="inline-flex items-center gap-2 bg-[#DF7649] text-white px-8 py-3.5 rounded-lg hover:bg-[#c96639] transition-all font-semibold text-base group shadow-md hover:shadow-lg"
+            >
+                Voir tout
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </Link>
+        </div>
     </div>
-
-    {/* Properties Grid */}
-    <div className="grid md:grid-cols-3 gap-8">
-      
-      {/* Property 1 (Appartement) */}
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
-        <div className="relative overflow-hidden h-80">
-          <img
-            src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80"
-            alt="Appartement moderne"
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-          />
-          {/* Badges */}
-          <div className="absolute top-4 left-4 flex gap-2">
-            {/* À vendre : BG transparent -> Orange / Texte Blanc */}
-            <span className="bg-transparent border border-white text-white group-hover:bg-orange-500 group-hover:border-orange-500 group-hover:text-white px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-300">
-              À vendre
-            </span>
-            <span className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-semibold">
-              Appartement
-            </span>
-          </div>
-          {/* Favorite Icon */}
-          {/* Icône : BG Blanc -> Transparent / Coeur Gris -> Orange */}
-          <button className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:bg-transparent transition-all duration-300">
-            <svg className="w-5 h-5 text-gray-600 group-hover:text-orange-500 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </button>
-        </div>
-        <div className="p-6">
-          {/* Titre : Gris -> Orange */}
-          <h3 className="text-xl font-bold text-gray-900 group-hover:text-orange-500 mb-2 transition-colors duration-300">
-            Appartement moderne - Almadies
-          </h3>
-          <div className="flex items-center gap-2 text-gray-600 mb-4">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span className="text-sm">Almadies, Dakar</span>
-          </div>
-          {/* Property Details */}
-          <div className="flex items-center gap-4 text-gray-600 mb-4 text-sm">
-            <div className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              <span>3</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-              </svg>
-              <span>2</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-              </svg>
-              <span>120m²</span>
-            </div>
-          </div>
-          {/* Prix : Orange -> Noir */}
-          <div className="text-3xl font-bold text-orange-500 group-hover:text-gray-900 transition-colors duration-300">
-            85 000 000 FCFA
-          </div>
-        </div>
-      </div>
-
-      {/* Property 2 (Commercial) */}
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
-        <div className="relative overflow-hidden h-80">
-          <img
-            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80"
-            alt="Immeuble commercial"
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-          />
-          <div className="absolute top-4 left-4 flex gap-2">
-            {/* À vendre : BG transparent -> Orange / Texte Blanc */}
-            <span className="bg-transparent border border-white text-white group-hover:bg-orange-500 group-hover:border-orange-500 group-hover:text-white px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-300">
-              À vendre
-            </span>
-            <span className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-semibold">
-              Commercial
-            </span>
-          </div>
-          {/* Favorite Icon */}
-          {/* Icône : BG Blanc -> Transparent / Coeur Gris -> Orange */}
-          <button className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:bg-transparent transition-all duration-300">
-            <svg className="w-5 h-5 text-gray-600 group-hover:text-orange-500 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </button>
-        </div>
-        <div className="p-6">
-          {/* Titre : Gris -> Orange */}
-          <h3 className="text-xl font-bold text-gray-900 group-hover:text-orange-500 mb-2 transition-colors duration-300">
-            Immeuble commercial - Plateau
-          </h3>
-          <div className="flex items-center gap-2 text-gray-600 mb-4">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span className="text-sm">Almadies, Dakar</span>
-          </div>
-          <div className="flex items-center gap-4 text-gray-600 mb-4 text-sm">
-            <div className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              <span>3</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-              </svg>
-              <span>2</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-              </svg>
-              <span>120m²</span>
-            </div>
-          </div>
-          {/* Prix : Orange -> Noir */}
-          <div className="text-3xl font-bold text-orange-500 group-hover:text-gray-900 transition-colors duration-300">
-            450 000 000 FCFA
-          </div>
-        </div>
-      </div>
-
-      {/* Property 3 (Villa) */}
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
-        <div className="relative overflow-hidden h-80">
-          <img
-            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80"
-            alt="Villa moderne"
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-          />
-          <div className="absolute top-4 left-4 flex gap-2">
-            {/* À vendre : BG transparent -> Orange / Texte Blanc */}
-            <span className="bg-transparent border border-white text-white group-hover:bg-orange-500 group-hover:border-orange-500 group-hover:text-white px-4 py-2 rounded-full text-sm font-semibold transition-colors duration-300">
-              À vendre
-            </span>
-            <span className="bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-semibold">
-              Villa
-            </span>
-          </div>
-          {/* Favorite Icon */}
-          {/* Icône : BG Blanc -> Transparent / Coeur Gris -> Orange */}
-          <button className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center group-hover:bg-transparent transition-all duration-300">
-            <svg className="w-5 h-5 text-gray-600 group-hover:text-orange-500 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </button>
-        </div>
-        <div className="p-6">
-          {/* Titre : Gris -> Orange */}
-          <h3 className="text-xl font-bold text-gray-900 group-hover:text-orange-500 mb-2 transition-colors duration-300">
-            Immeuble commercial - Plateau
-          </h3>
-          <div className="flex items-center gap-2 text-gray-600 mb-4">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span className="text-sm">Almadies, Dakar</span>
-          </div>
-          <div className="flex items-center gap-4 text-gray-600 mb-4 text-sm">
-            <div className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              <span>3</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-              </svg>
-              <span>2</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-              </svg>
-              <span>120m²</span>
-            </div>
-          </div>
-          {/* Prix : Orange -> Noir */}
-         <div className="text-3xl font-bold text-orange-500 group-hover:text-gray-900 transition-colors duration-300">
-            320 000 000 FCFA
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* View All Button */}
-   <div className="text-center mt-12">
-  <Link 
-    to="/proprietes"
-    className="inline-flex items-center gap-2 bg-[#DF7649] text-white px-8 py-3.5 rounded-lg hover:bg-[#c96639] transition-all font-semibold text-base group shadow-md hover:shadow-lg"
-  >
-    Voir tout
-    <span className="group-hover:translate-x-1 transition-transform">→</span>
-  </Link>
-</div>
-  </div>
 </section>
 
 {/* Testimonials Section */}

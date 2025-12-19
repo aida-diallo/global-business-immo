@@ -24,19 +24,19 @@ import { Link } from 'react-router-dom';
 // --- MOCK DATA pour les services ---
 const SERVICES_MOCK = [
     // Ligne 1 du design
-    { id: 1, titre: "Transactions immobilières", description: "Achat, vente et location de biens immobiliers avec un accompagnement personnalisé et professionnel.", icon: 'ClipboardList' }, // Icône de Transaction (Similaire au design)
-    { id: 2, titre: "Localisation de biens", description: "Trouvez le bien idéal grâce à notre expertise du marché immobilier sénégalais.", icon: 'MapPin' },
-    { id: 3, titre: "Gestion de propriétés", description: "Gestion complète de vos biens immobiliers pour maximiser votre investissement.", icon: 'Home' },
+    { id: 1, titre: "Transactions immobilières", description: "Achat, vente et location de biens immobiliers avec un accompagnement personnalisé et professionnel.", icon: 'ClipboardList', path: "/services/transactionImmoPage" }, // Icône de Transaction (Similaire au design)
+    { id: 2, titre: "Localisation de biens", description: "Trouvez le bien idéal grâce à notre expertise du marché immobilier sénégalais.", icon: 'MapPin', path: "/services/localisationPage" },
+    { id: 3, titre: "Gestion de propriétés", description: "Gestion complète de vos biens immobiliers pour maximiser votre investissement.", icon: 'Home', path: "/services/gestionBienPage" },
     
     // Ligne 2 du design
-    { id: 4, titre: "Vente de Terrain", description: "Large sélection de terrains constructibles dans les meilleurs zones.", icon: 'ClipboardList' },
-    { id: 5, titre: "Construction", description: "Service de construction clé en main avec des partenaires de confiance certifiés.", icon: 'Users' },
-    { id: 6, titre: "Plans architecturaux", description: "Conception et élaboration de plan architecturaux sur mesure par nos experts", icon: 'Briefcase' },
+    { id: 4, titre: "Vente de Terrain", description: "Large sélection de terrains constructibles dans les meilleurs zones.", icon: 'ClipboardList', path: "/services/venteTerrainPage" },
+    { id: 5, titre: "Construction", description: "Service de construction clé en main avec des partenaires de confiance certifiés.", icon: 'Users', path: "/services/constructionPage" },
+    { id: 6, titre: "Plans architecturaux", description: "Conception et élaboration de plan architecturaux sur mesure par nos experts", icon: 'Briefcase', path: "/services/plansArchitecturauxPage" },
     
     // Services supplémentaires (si vous les voulez)
-    { id: 7, titre: "Enregistrement", description: "Assistance complète pour toute vos demarches administratives et legales", icon: 'Key' },
-    { id: 8, titre: "Conseil immobiliers", description: "Expertises et conseils stratégique pour vos projets immobiliers d'envergure", icon: 'Briefcase' },
-    { id: 9, titre: "Topographie", description: "Services topographiques professionnels pour vos projets de construction.", icon: 'MapPin' },
+    { id: 7, titre: "Enregistrement", description: "Assistance complète pour toute vos demarches administratives et legales", icon: 'Key', path: "/services/enregistrementPage" },
+    { id: 8, titre: "Conseil immobiliers", description: "Expertises et conseils stratégique pour vos projets immobiliers d'envergure", icon: 'Briefcase', path: "/services/conseilImmoPage" },
+    { id: 9, titre: "Topographie", description: "Services topographiques professionnels pour vos projets de construction.", icon: 'MapPin', path: "/services/topographiePage" },
 ];
 
 // ...
@@ -61,6 +61,7 @@ const DynamicIcon = ({ name, className }) => {
     return <IconComponent className={className} />;
 };
 // ...
+const ACCENT_COLOR = "#DF7649";
 
 export default function ServicesPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -246,8 +247,8 @@ export default function ServicesPage() {
     <div className="absolute inset-0 bg-gray-900/40"></div> 
     
     {/* Dégradé léger en bas pour adoucir la transition avec la prochaine section */}
-    <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-gray-50/10 to-transparent"></div>
-  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#DF7649] to-transparent"></div>
+    {/* <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-gray-50/10 to-transparent"></div>
+  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#DF7649] to-transparent"></div> */}
   
   </div>
 
@@ -273,6 +274,7 @@ export default function ServicesPage() {
     </button>
   </div>
 </section>
+<div style={{backgroundColor: ACCENT_COLOR}} className="h-4"></div> 
 
       {/* Services Grid Section */}
       <section className="py-20 bg-[#FAF6F3] relative overflow-hidden">
@@ -280,51 +282,52 @@ export default function ServicesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Assurez-vous que SERVICES_MOCK est défini en haut du fichier */}
             {SERVICES_MOCK.map((service) => (
-                <div 
-                    key={service.id} 
-                    // Carte blanche, coins arrondis, et effet de survol
-                    className="bg-white p-6 sm:p-8 rounded-2xl
-                                shadow-sm transition-all duration-300 group relative
-                                
-                                // Bordure inférieure orange au survol
-                                border-b-4 border-transparent hover:border-[#DF7649] 
-                                
-                                // Ombre légère
-                                hover:shadow-xl hover:shadow-[#DF7649]/10"
-                >
-                    
-                    {/* Conteneur de l'Icône avec HOVER */}
-                    <div className="w-14 h-14 bg-[#DF7649]/10 rounded-xl flex items-center justify-center mb-5 
-                                    transition-colors duration-300 group-hover:bg-[#DF7649]">
-                        {/* L'icône change de couleur au HOVER */}
-                        <DynamicIcon 
-                            name={service.icon} 
-                            className="w-7 h-7 text-[#DF7649] 
-                                       transition-colors duration-300 group-hover:text-white" 
-                        />
-                    </div>
-                    
-                    {/* Titre */}
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">
-                        {service.titre}
-                    </h3>
-                    
-                    {/* Description */}
-                    <p className="text-gray-600 mb-4 leading-relaxed text-sm">
-                        {service.description}
-                    </p>
-                    
-                    {/* Lien "Lire la suite" */}
-                    <Link 
-                        to={`/services/${service.id}`}
-                        // LIEN NOIR PAR DÉFAUT, ORANGE PAR SURVOL DE LA CARTE (group-hover)
-                        className="text-gray-900 font-semibold text-sm flex items-center gap-1 
-                                   group-hover:text-[#DF7649] hover:gap-2 transition-all duration-300"
-                    >
-                        Lire la suite 
-                        <span className="transform group-hover:translate-x-0.5 transition-transform">→</span>
-                    </Link>
-                </div>
+                <Link 
+                           key={service.id} 
+                           to={service.path || `/services/${service.id}`}
+                           // Carte blanche, coins arrondis, et effet de survol
+                           className="bg-white p-6 sm:p-8 rounded-2xl
+                                       shadow-sm transition-all duration-300 group relative
+                                       
+                                       // Bordure inférieure orange au survol
+                                       border-b-4 border-transparent hover:border-[#DF7649] 
+                                       
+                                       // Ombre légère
+                                       hover:shadow-xl hover:shadow-[#DF7649]/10"
+                       >
+                           
+                           {/* Conteneur de l'Icône avec HOVER */}
+                           <div className="w-14 h-14 bg-[#DF7649]/10 rounded-xl flex items-center justify-center mb-5 
+                                           transition-colors duration-300 group-hover:bg-[#DF7649]">
+                               {/* L'icône change de couleur au HOVER */}
+                               <DynamicIcon 
+                                   name={service.icon} 
+                                   className="w-7 h-7 text-[#DF7649] 
+                                              transition-colors duration-300 group-hover:text-white" 
+                               />
+                           </div>
+                           
+                           {/* Titre */}
+                           <h3 className="text-xl font-bold text-gray-900 mb-3">
+                               {service.titre}
+                           </h3>
+                           
+                           {/* Description */}
+                           <p className="text-gray-600 mb-4 leading-relaxed text-sm">
+                               {service.description}
+                           </p>
+                           
+                           {/* Lien "Lire la suite" */}
+                           <span 
+                               to={`/services/${service.id}`}
+                               // LIEN NOIR PAR DÉFAUT, ORANGE PAR SURVOL DE LA CARTE (group-hover)
+                               className="text-gray-900 font-semibold text-sm flex items-center gap-1 
+                                          group-hover:text-[#DF7649] hover:gap-2 transition-all duration-300"
+                           >
+                               Lire la suite 
+                               <span className="transform group-hover:translate-x-0.5 transition-transform">→</span>
+                           </span>
+                       </Link>
             ))}
         </div>
       </section>
